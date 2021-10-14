@@ -129,29 +129,57 @@ var WildRydes = window.WildRydes || {};
         );
     }
 
-    function handleRegister(event) {
-        var email = $('#emailInputRegister').val();
-        var password = $('#passwordInputRegister').val();
-        var password2 = $('#password2InputRegister').val();
+    async function handleRegister(event) {
+        console.log('123')
+        const INSIGHT_API_URL = 'https://f3td8u1gkj.execute-api.us-east-1.amazonaws.com/dev'
 
-        var onSuccess = function registerSuccess(result) {
-            var cognitoUser = result.user;
-            console.log('user name is ' + cognitoUser.getUsername());
-            var confirmation = ('Registration successful. Please check your email inbox or spam folder for your verification code.');
-            if (confirmation) {
-                window.location.href = 'verify.html';
-            }
-        };
-        var onFailure = function registerFailure(err) {
-            alert(err);
-        };
-        event.preventDefault();
+        var id = $('#idInputRegister').val();
+        var description = $('#descriptionInputRegister').val();
+        var status = $('#statusInputRegister').val();
+        var pointId = $('#pointIdInputRegister').val();
+        var pointName = $('#pointNameInputRegister').val();
+        var registerType = $('#registerTypeInputRegister').val();
+        let body = {}
 
-        if (password === password2) {
-            register(email, password, onSuccess, onFailure);
-        } else {
-            alert('Passwords do not match');
+        if(registerType == 'Envio'){
+             body = {
+                description,
+                id,
+                lastRegistered: Date.now(),
+                status,
+                onTheWayRegisters: [
+                  {
+                    pointId,
+                    pointName,
+                    registerTime: Date.now()
+                  }
+                ]
         }
+        } else{ 
+            body = {
+                description,
+                id,
+                lastRegistered: Date.now(),
+                status,
+                fabricationRegisters: [
+                  {
+                    pointId,
+                    pointName,
+                    registerTime: Date.now()
+                  }
+                ]
+        } 
+        }
+
+        console.log(body)
+
+        const response = await fetch(`${INSIGHT_API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body
+        })
     }
 
     function handleVerify(event) {
